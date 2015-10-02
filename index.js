@@ -1,5 +1,5 @@
-var Transformer = require('./transformer');
-var plugins     = require('./plugins');
+var Transformer = require('./lib/transformer');
+var plugins     = require('./lib/plugins');
 
 /**
  * @param {Object} object
