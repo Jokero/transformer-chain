@@ -5,7 +5,7 @@ var plugins     = require('./lib/plugins');
  * @param {Object} object
  * @param {Object} config
  */
-function transformerFactory(object, config) {
+function transformer(object, config) {
     return new Transformer(object, config, plugins);
 }
 
@@ -13,7 +13,7 @@ function transformerFactory(object, config) {
  * @param {String}   pluginName
  * @param {Function} plugin
  */
-transformerFactory.setPlugin = function(pluginName, plugin) {
+transformer.setPlugin = function(pluginName, plugin) {
     plugins[pluginName] = plugin;
 };
 
@@ -22,8 +22,8 @@ transformerFactory.setPlugin = function(pluginName, plugin) {
  *
  * @returns {Function}
  */
-transformerFactory.getPlugin = function(pluginName) {
+transformer.getPlugin = function(pluginName) {
     return plugins[pluginName];
 };
 
-module.exports = transformerFactory;
+module.exports = transformer;
