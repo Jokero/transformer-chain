@@ -1,5 +1,6 @@
 var Transformer = require('./lib/transformer');
 var plugins     = require('./lib/plugins');
+var utils       = require('./lib/utils');
 
 /**
  * @param {Object} object
@@ -25,5 +26,7 @@ transformer.setPlugin = function(pluginName, plugin) {
 transformer.getPlugin = function(pluginName) {
     return plugins[pluginName];
 };
+
+transformer.utils = utils;
 
 module.exports = transformer;
