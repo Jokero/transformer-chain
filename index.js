@@ -1,3 +1,9 @@
+/**
+ * todo:
+ * 1) не надо сетить undefined
+ * 2) может, есть смысл cloneDeep в плагинах делать?
+ */
+
 var Transformer = require('./lib/transformer');
 var plugins     = require('./lib/plugins');
 var utils       = require('./lib/utils');
