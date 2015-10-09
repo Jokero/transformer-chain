@@ -2,7 +2,16 @@
     "name":    "transformer",
     "version": "0.0.1",
     "private": true,
+
     "dependencies": {
         "lodash": "3.10.1"
+    },
+    "devDependencies": {
+        "chai":             "3.2.0",
+        "chai-as-promised": "5.1.0"
+    },
+
+    "scripts": {
+        "test": "mocha 'lib/**/_tests/*.js'"
     }
 }

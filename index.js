@@ -1,35 +1,38 @@
-var prepare     = require('./lib/prepare');
-var setDefaults = require('./lib/setDefaults');
-var filter      = require('./lib/filter');
-var validate    = require('./lib/validate');
+/**
+ * todo:
+ * 1) не надо сетить undefined
+ * 2) может, есть смысл cloneDeep в плагинах делать?
+ */
+
+var Transformer = require('./lib/transformer');
+var plugins     = require('./lib/plugins');
+var utils       = require('./lib/utils');
 
 /**
- * @param {Object}         object
- * @param {Object|Boolean} config
- *
- * @returns {Promise}
+ * @param {Object} object
+ * @param {Object} config
  */
-function processParams(object, config) {
-    if (config === true) {
-        return Promise.resolve(object);
-    }
-
-    return Promise.resolve().then(function() {
-        var preparedObject = prepare(object, config);
-
-        setDefaults(preparedObject, config);
-
-        filter(preparedObject, config);
-
-        return validate(preparedObject, config);
-    });
+function transformer(object, config) {
+    return new Transformer(object, config, plugins);
 }
 
 /**
- * @param {Object} $validators
+ * @param {String}   pluginName
+ * @param {Function} plugin
  */
-processParams.setValidators = function($validators) {
-    validate.setValidators($validators);
+transformer.setPlugin = function(pluginName, plugin) {
+    plugins[pluginName] = plugin;
 };
 
-module.exports = processParams;
+/**
+ * @param {String} pluginName
+ *
+ * @returns {Function}
+ */
+transformer.getPlugin = function(pluginName) {
+    return plugins[pluginName];
+};
+
+transformer.utils = utils;
+
+module.exports = transformer;
