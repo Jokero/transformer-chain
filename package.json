@@ -1,17 +1,24 @@
 {
-    "name":    "transformer",
+    "name":    "transformer-chain",
     "version": "0.0.1",
-    "private": true,
+
+    "author": {
+        "name":  "Dmitry Kirilyuk",
+        "email": "gk.joker@gmail.com"
+    },
+
+    "repository": {
+        "type": "git",
+        "url":  "https://github.com/Jokero/transformer-chain.git"
+    },
+
+    "license": "MIT",
+
+    "engines": {
+        "node" : ">=4.0.0"
+    },
 
     "dependencies": {
         "lodash": "3.10.1"
-    },
-    "devDependencies": {
-        "chai":             "3.2.0",
-        "chai-as-promised": "5.1.0"
-    },
-
-    "scripts": {
-        "test": "mocha 'lib/**/_tests/*.js'"
     }
 }
