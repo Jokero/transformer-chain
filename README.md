@@ -215,7 +215,7 @@ const schema = {
             string: true
         }
     },
-    author: true // here we tell that we need this field in result object without any changes
+    author: true // here we say that we need this field in result object without any changes
 };
 ```
 
