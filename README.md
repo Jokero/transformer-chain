@@ -104,7 +104,8 @@ const schema = {
 };
 
 const transform = function(object, schema) {
-    return transformer(object, schema) // you can run plugins in the order you want, but this one looks good
+    // you can run plugins in the order you want, but this one looks reasonable
+    return transformer(object, schema)
         .default()
         .filter()
         .validate()
@@ -155,12 +156,17 @@ transformer(object, schema)
 
 #### Return value
 
-(Object | Promise) - Result of processing. The module returns promise when at least one of the plugins is asynchronous (returns promise).
-In all other cases object is returned.
+(Object | Promise) - Result of processing. The module returns promise when at least one of the plugins is asynchronous, 
+i.e., also returns promise. In all other cases object is returned.
 
 ### Plugins
 
-By default `transformer-chain` comes with four plugins, but you can add your own if needed.
+By default `transformer-chain` comes with four plugins, but you can add your own if it's needed:
+
+```js
+const transformer = require('transformer-chain');
+transformer.plugins.yourCustomPlugin = function(object, schema) { /* plugin implementation */ };
+```
 
 Built-in plugins:
 
@@ -173,7 +179,7 @@ You define order in which plugins will be executed by chaining them. Plugins are
 
 #### default
 
-Sets default value specified in `$default` field for property when its value is `undefined`.
+Sets default value specified in `$default` field to property when its value is `undefined`.
 
 #### filter
 
@@ -189,8 +195,9 @@ Under the hood `validy` uses collection of different validators defined in [comm
 #### project
 
 Unlike other built-in plugins `project` plugin does not have special field prefixed by `$`.
-It allows you to project only those fields that you need. All properties whose config is resolved to object or `true` will be available
-in result object. It's useful when you want to get some property in result object as is, i.e., without any manipulation:
+It allows you to project only those fields that you need. All properties whose config is resolved to object or `true` 
+will be presented in result object. It's useful when you want to get some property in result object as is, i.e., 
+without any manipulation:
 
 ```js
 const book = {
@@ -208,7 +215,7 @@ const schema = {
             string: true
         }
     },
-    author: true
+    author: true // here we tell that we need this field in result object without any changes
 };
 ```
 
