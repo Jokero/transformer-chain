@@ -8,6 +8,28 @@ If you need only validation, take a look at [validy](https://github.com/Jokero/v
 
 **Note:** This module works in browsers and Node.js >= 6.0.
 
+## Table of Contents
+
+- [Demo](#demo)
+- [Installation](#installation)
+  - [Node.js](#nodejs)
+  - [Browser](#browser)
+- [Overview](#overview)
+- [Usage](#usage)
+  - [Parameters](#parameters)
+  - [Return value](#return-value)
+- [Plugins](#plugins)
+  - [default](#default)
+  - [filter](#filter)
+  - [validate](#validate)
+  - [project](#project)
+- [Dynamic schema](#dynamic-schema)
+- [Don’t repeat yourself](#dont-repeat-yourself)
+- [Build](#build)
+- [Tests](#tests)
+- [License](#license)
+
+
 ## Demo
 
 Try [demo](https://runkit.com/npm/transformer-chain) on RunKit.
