@@ -6,7 +6,7 @@ If you need only validation, take a look at [validy](https://github.com/Jokero/v
 [![NPM version](https://img.shields.io/npm/v/transformer-chain.svg)](https://npmjs.org/package/transformer-chain)
 [![Build status](https://img.shields.io/travis/Jokero/transformer-chain.svg)](https://travis-ci.org/Jokero/transformer-chain)
 
-**Note:** This module works in browsers and Node.js >= 6.0.
+**Note:** This module works in browsers and Node.js >= 4.0. Use polyfill for Internet Explorer
 
 ## Table of Contents
 
@@ -360,7 +360,7 @@ reused in multiple places:
 
 ```js
 const commonSchemas = {
-    string(required = false) {
+    string: function(required = false) {
         return {
             $filter: 'trim',
             validators: {
@@ -370,12 +370,11 @@ const commonSchemas = {
         };
     },
     
-    email(required = false) {
+    email: function(required = false) {
         return {
             $filter: ['trim', 'toLowerCase'],
             $validate: {
                 required: required,
-                type: 'string',
                 email: true
             }
         };
