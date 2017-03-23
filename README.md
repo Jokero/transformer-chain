@@ -291,7 +291,7 @@ const productsSchemas = {
 
 const schema = {
     products: [(product/*, products, order, pathToItem*/) => {
-        const productSchema = productsSchemas[product.type] || {};
+        const productSchema = productsSchemas[product.type];
         return Object.assign({}, productSchema, {
             type: {
                 $validate: {
