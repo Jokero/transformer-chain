@@ -678,7 +678,7 @@ module.exports = new Filters().add(filters);
 },{}],9:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var toDateTime = require('normalize-date');
 
@@ -719,55 +719,55 @@ var validators = {
 
     //Types
     object: function object(value) {
-        if (!isPlainObject(value)) {
+        if (isDefined(value) && !isPlainObject(value)) {
             return 'Must be an object';
         }
     },
 
     array: function array(value) {
-        if (!isArray(value)) {
+        if (isDefined(value) && !isArray(value)) {
             return 'Must be an array';
         }
     },
 
     string: function string(value) {
-        if (!isString(value)) {
+        if (isDefined(value) && !isString(value)) {
             return 'Must be a string';
         }
     },
 
     number: function number(value) {
-        if (!isNumber(value)) {
+        if (isDefined(value) && !isNumber(value)) {
             return 'Must be a number';
         }
     },
 
     integer: function integer(value) {
-        if (!isInteger(value)) {
+        if (isDefined(value) && !isInteger(value)) {
             return 'Must be an integer';
         }
     },
 
     date: function date(value) {
-        if (!isDateTime(value)) {
+        if (isDefined(value) && !isDateTime(value)) {
             return 'Must be a valid date';
         }
     },
 
     boolean: function boolean(value) {
-        if (!isBoolean(value)) {
+        if (isDefined(value) && !isBoolean(value)) {
             return 'Must be a boolean';
         }
     },
 
     function: function _function(value) {
-        if (!isFunction(value)) {
+        if (isDefined(value) && !isFunction(value)) {
             return 'Must be a function';
         }
     },
 
     null: function _null(value) {
-        if (value !== null) {
+        if (isDefined(value) && value !== null) {
             return 'Must be a null';
         }
     },
@@ -1104,31 +1104,25 @@ var validators = {
         files = toArray(options.files || files);
 
         if (exists(files)) {
-            var _ret = function () {
-                var allowedTypes = (arg || '').split(',').map(function (type) {
-                    return type.trim().replace('*', '');
+            var allowedTypes = (arg || '').split(',').map(function (type) {
+                return type.trim().replace('*', '');
+            });
+
+            var isError = files.some(function (file) {
+                return allowedTypes.every(function (type) {
+                    if (type[0] === '.') {
+                        //extension
+                        return '.' + ((file.name || '').split('.').pop() || '').toLowerCase() !== type;
+                    } else {
+                        //mime type
+                        return (file.type || '').indexOf(type) === -1;
+                    }
                 });
+            });
 
-                var isError = files.some(function (file) {
-                    return allowedTypes.every(function (type) {
-                        if (type[0] === '.') {
-                            //extension
-                            return '.' + ((file.name || '').split('.').pop() || '').toLowerCase() !== type;
-                        } else {
-                            //mime type
-                            return (file.type || '').indexOf(type) === -1;
-                        }
-                    });
-                });
-
-                if (isError) {
-                    return {
-                        v: 'File must be a %{arg}'
-                    };
-                }
-            }();
-
-            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+            if (isError) {
+                return 'File must be a %{arg}';
+            }
         }
     },
     minFileSize: function minFileSize(files, arg, options) {
@@ -1226,6 +1220,7 @@ var util = {
     isObject: isObject,
     isPlainObject: isPlainObject,
     isDefined: isDefined,
+    isUndefinedOrNull: isUndefinedOrNull,
     isEmpty: isEmpty,
     exists: exists,
     contains: contains,
@@ -1278,9 +1273,12 @@ function isPlainObject(value) {
     return (typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object' && value !== null && !isArray(value) && !(value instanceof RegExp) && !(value instanceof Date) && !(value instanceof Error) && !(value instanceof Number) && !(value instanceof String) && !(value instanceof Boolean) && (typeof value.toDateTime !== 'function' || value.propertyIsEnumerable('toDateTime')); //Moment.js date
 }
 
-// Returns false if the object is `null` of `undefined`
 function isDefined(obj) {
-    return obj != null;
+    return obj !== undefined;
+}
+
+function isUndefinedOrNull(obj) {
+    return obj == null;
 }
 
 //Note! undefined is not empty
@@ -1318,7 +1316,7 @@ function exists(value) {
 function contains(collection, value, some) {
     some = some ? 'some' : 'every';
 
-    if (!isDefined(collection)) {
+    if (isUndefinedOrNull(collection)) {
         return false;
     }
 
@@ -1350,7 +1348,7 @@ function deepEqual(actual, expected, strict) {
 function objEqual(a, b, strict) {
     var i, key;
 
-    if (!isDefined(a) || !isDefined(b)) {
+    if (isUndefinedOrNull(a) || isUndefinedOrNull(b)) {
         return false;
     }
 
@@ -3792,7 +3790,7 @@ module.exports = function (value, schema, object, fullObject, path) {
 
         var validateObject = require('./validateObject');
 
-        if (schema.$items || schema[0]) {
+        if ((schema.$items || schema[0]) && value !== undefined) {
             if (!(value instanceof Array)) {
                 return Promise.resolve([{
                     error: 'array',
@@ -3808,11 +3806,9 @@ module.exports = function (value, schema, object, fullObject, path) {
             });
 
             return validateObject(value, propertiesSchema, fullObject, path);
-        }
-
-        if (Object.keys(schema).some(function (propertyName) {
+        } else if (Object.keys(schema).some(function (propertyName) {
             return !propertyName.startsWith('$');
-        })) {
+        }) && value !== undefined) {
             if (!(value instanceof Object)) {
                 return Promise.resolve([{
                     error: 'object',
@@ -3878,56 +3874,18 @@ module.exports = function (value, validatorsOptions, object, fullObject, path) {
 },{"./validators":22}],21:[function(require,module,exports){
 'use strict';
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function ValidationError(errors) {
+    Error.call(this);
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _extendableBuiltin(cls) {
-    function ExtendableBuiltin() {
-        var instance = Reflect.construct(cls, Array.from(arguments));
-        Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
-        return instance;
+    if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, this.constructor);
     }
 
-    ExtendableBuiltin.prototype = Object.create(cls.prototype, {
-        constructor: {
-            value: cls,
-            enumerable: false,
-            writable: true,
-            configurable: true
-        }
-    });
-
-    if (Object.setPrototypeOf) {
-        Object.setPrototypeOf(ExtendableBuiltin, cls);
-    } else {
-        ExtendableBuiltin.__proto__ = cls;
-    }
-
-    return ExtendableBuiltin;
+    this.name = this.constructor.name;
+    this.errors = errors;
 }
 
-var ValidationError = function (_extendableBuiltin2) {
-    _inherits(ValidationError, _extendableBuiltin2);
-
-    function ValidationError(errors) {
-        _classCallCheck(this, ValidationError);
-
-        var _this = _possibleConstructorReturn(this, (ValidationError.__proto__ || Object.getPrototypeOf(ValidationError)).call(this));
-
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(_this, _this.constructor);
-        }
-
-        _this.name = _this.constructor.name;
-        _this.errors = errors;
-        return _this;
-    }
-
-    return ValidationError;
-}(_extendableBuiltin(Error));
+ValidationError.prototype = Object.create(Error.prototype);
 
 module.exports = ValidationError;
 },{}],22:[function(require,module,exports){

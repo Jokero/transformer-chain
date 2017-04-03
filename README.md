@@ -6,7 +6,7 @@ If you need only validation, take a look at [validy](https://github.com/Jokero/v
 [![NPM version](https://img.shields.io/npm/v/transformer-chain.svg)](https://npmjs.org/package/transformer-chain)
 [![Build status](https://img.shields.io/travis/Jokero/transformer-chain.svg)](https://travis-ci.org/Jokero/transformer-chain)
 
-**Note:** This module works in browsers and Node.js >= 4.0. Use polyfill for Internet Explorer
+**Note:** This module works in browsers and Node.js >= 4.0. Use `Object.assign` and `Promise` polyfills for Internet Explorer
 
 ## Table of Contents
 
@@ -28,7 +28,6 @@ If you need only validation, take a look at [validy](https://github.com/Jokero/v
 - [Build](#build)
 - [Tests](#tests)
 - [License](#license)
-
 
 ## Demo
 
@@ -91,7 +90,11 @@ const schema = {
             string: true
         }
     },
-    author: { // you can omit check that "author" value is object, it will be done internally 
+    author: {
+        $validate: { // you can omit check that "author" value is object, it will be done internally 
+            required: true
+        },
+    
         name: {
             $filter: function(value) { // you can use function for filtration
                 // this example has the same behaviour as built-in "trim": it trims only strings

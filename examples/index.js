@@ -26,7 +26,11 @@ const schema = {
             string: true
         }
     },
-    author: { // you can omit check that "author" value is object, it will be done internally
+    author: {
+        $validate: {
+            required: true
+        },
+
         name: {
             $filter: function(value) { // you can use function for filtration
                 // this example has the same behaviour as built-in "trim": it trims only strings
