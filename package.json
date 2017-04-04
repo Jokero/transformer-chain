@@ -1,6 +1,6 @@
 {
   "name": "transformer-chain",
-  "description": "Declarative object transformations",
+  "description": "Declarative processing of objects with support of filters, default values and validators",
   "version": "0.1.1",
   "author": {
     "name": "Dmitry Kirilyuk",

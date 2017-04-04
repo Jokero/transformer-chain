@@ -1,7 +1,8 @@
 # transformer-chain
 
 Declarative processing of objects with support of filters, default values and validators. It can be used in HTTP API for example.
-If you need only validation, take a look at [validy](https://github.com/Jokero/validy)
+You may be interested in express middleware ([express-request-parameters](https://github.com/Jokero/express-request-parameters)) for it.
+If you need only validation, take a look at [validy](https://github.com/Jokero/validy).
 
 [![NPM version](https://img.shields.io/npm/v/transformer-chain.svg)](https://npmjs.org/package/transformer-chain)
 [![Build status](https://img.shields.io/travis/Jokero/transformer-chain.svg)](https://travis-ci.org/Jokero/transformer-chain)
