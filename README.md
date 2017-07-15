@@ -210,7 +210,7 @@ Sets default value specified in `$default` field to property when its value is `
 #### filter
 
 `$filter` allows you to transform value as you need, format, sanitize, etc.
-This plugin comes with collection of filters ([common-validators](https://github.com/tamtakoe/common-validators)).
+This plugin comes with collection of filters ([common-filters](https://github.com/tamtakoe/common-filters)).
 
 #### validate
 
