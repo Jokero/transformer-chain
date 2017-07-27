@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "validy": "^0.1.5",
-    "common-filters": "^0.0.5",
+    "common-filters": "~0.0.7",
     "lodash.clonedeep": "4.5.0"
   },
   "devDependencies": {
