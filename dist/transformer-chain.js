@@ -19,7 +19,7 @@ module.exports = {
  * @returns {Object}
  */
 
-var handle = function handle(object, schema, fullObject, path) {
+function handleObject(object, schema, fullObject, path) {
     var resultObject = {};
 
     Object.keys(schema).forEach(function (propertyName) {
@@ -42,15 +42,19 @@ var handle = function handle(object, schema, fullObject, path) {
                 newPropertyValue = propertySchema.$default;
             }
 
-            if ((propertySchema.$items || propertySchema[0]) && newPropertyValue instanceof Array) {
-                var objectSchema = propertySchema.$items || propertySchema[0];
-                newPropertyValue = newPropertyValue.map(function (object, i) {
-                    return handle(object, objectSchema, fullObject, propertyPath.concat(i));
+            var itemsSchema = propertySchema.$items || propertySchema[0];
+            if (itemsSchema && Object.keys(itemsSchema).some(function (p) {
+                return !p.startsWith('$');
+            }) && newPropertyValue instanceof Array) {
+                var arraySchema = Array(newPropertyValue.length).fill(itemsSchema);
+                var handledArrayLikeObject = handleObject(newPropertyValue, arraySchema, fullObject, propertyPath);
+                newPropertyValue = Object.keys(handledArrayLikeObject).map(function (key) {
+                    return handledArrayLikeObject[key];
                 });
             } else if (Object.keys(propertySchema).some(function (p) {
                 return !p.startsWith('$');
             }) && newPropertyValue instanceof Object) {
-                newPropertyValue = handle(newPropertyValue, propertySchema, fullObject, propertyPath);
+                newPropertyValue = handleObject(newPropertyValue, propertySchema, fullObject, propertyPath);
             }
         }
 
@@ -58,7 +62,7 @@ var handle = function handle(object, schema, fullObject, path) {
     });
 
     return resultObject;
-};
+}
 
 /**
  * @param {Object} object
@@ -67,7 +71,7 @@ var handle = function handle(object, schema, fullObject, path) {
  * @returns {Object}
  */
 module.exports = function (object, schema) {
-    return handle(object, schema, object, []);
+    return handleObject(object, schema, object, []);
 };
 },{}],3:[function(require,module,exports){
 'use strict';
@@ -84,7 +88,7 @@ var builtInFilters = Object.assign({}, require('common-filters'));
  *
  * @returns {Object}
  */
-var handle = function handle(object, schema, fullObject, path) {
+function handleObject(object, schema, fullObject, path) {
     var resultObject = {};
 
     Object.keys(schema).forEach(function (propertyName) {
@@ -132,15 +136,17 @@ var handle = function handle(object, schema, fullObject, path) {
                 });
             }
 
-            if ((propertySchema.$items || propertySchema[0]) && newPropertyValue instanceof Array) {
-                var objectSchema = propertySchema.$items || propertySchema[0];
-                newPropertyValue = newPropertyValue.map(function (object, i) {
-                    return handle(object, objectSchema, fullObject, propertyPath.concat(i));
+            var itemsSchema = propertySchema.$items || propertySchema[0];
+            if (itemsSchema && newPropertyValue instanceof Array) {
+                var arraySchema = Array(newPropertyValue.length).fill(itemsSchema);
+                var handledArrayLikeObject = handleObject(newPropertyValue, arraySchema, fullObject, propertyPath);
+                newPropertyValue = Object.keys(handledArrayLikeObject).map(function (key) {
+                    return handledArrayLikeObject[key];
                 });
             } else if (Object.keys(propertySchema).some(function (p) {
                 return !p.startsWith('$');
             }) && newPropertyValue instanceof Object) {
-                newPropertyValue = handle(newPropertyValue, propertySchema, fullObject, propertyPath);
+                newPropertyValue = handleObject(newPropertyValue, propertySchema, fullObject, propertyPath);
             }
         }
 
@@ -148,7 +154,7 @@ var handle = function handle(object, schema, fullObject, path) {
     });
 
     return resultObject;
-};
+}
 
 /**
  * @param {Object} object
@@ -157,7 +163,7 @@ var handle = function handle(object, schema, fullObject, path) {
  * @returns {Object}
  */
 var plugin = function plugin(object, schema) {
-    return handle(object, schema, object, []);
+    return handleObject(object, schema, object, []);
 };
 
 plugin.filters = builtInFilters;
@@ -175,7 +181,7 @@ module.exports = plugin;
  * @returns {Object}
  */
 
-var handle = function handle(object, schema, fullObject, path) {
+function handleObject(object, schema, fullObject, path) {
     var resultObject = {};
 
     Object.keys(schema).forEach(function (propertyName) {
@@ -198,15 +204,19 @@ var handle = function handle(object, schema, fullObject, path) {
         } else if (propertySchema instanceof Object) {
             newPropertyValue = propertyValue;
 
-            if ((propertySchema.$items || propertySchema[0]) && propertyValue instanceof Array) {
-                var objectSchema = propertySchema.$items || propertySchema[0];
-                newPropertyValue = propertyValue.map(function (object, i) {
-                    return handle(object, objectSchema, fullObject, propertyPath.concat(i));
+            var itemsSchema = propertySchema.$items || propertySchema[0];
+            if (itemsSchema && Object.keys(itemsSchema).some(function (p) {
+                return !p.startsWith('$');
+            }) && propertyValue instanceof Array) {
+                var arraySchema = Array(newPropertyValue.length).fill(itemsSchema);
+                var handledArrayLikeObject = handleObject(newPropertyValue, arraySchema, fullObject, propertyPath);
+                newPropertyValue = Object.keys(handledArrayLikeObject).map(function (key) {
+                    return handledArrayLikeObject[key];
                 });
             } else if (Object.keys(propertySchema).some(function (p) {
                 return !p.startsWith('$');
             }) && propertyValue instanceof Object) {
-                newPropertyValue = handle(propertyValue, propertySchema, fullObject, propertyPath);
+                newPropertyValue = handleObject(propertyValue, propertySchema, fullObject, propertyPath);
             }
         }
 
@@ -216,7 +226,7 @@ var handle = function handle(object, schema, fullObject, path) {
     });
 
     return resultObject;
-};
+}
 
 /**
  * @param {Object} object
@@ -225,7 +235,7 @@ var handle = function handle(object, schema, fullObject, path) {
  * @returns {Object}
  */
 module.exports = function (object, schema) {
-    return handle(object, schema, object, []);
+    return handleObject(object, schema, object, []);
 };
 },{}],5:[function(require,module,exports){
 'use strict';
@@ -320,6 +330,18 @@ var filters = {
         }
 
         return Array.prototype.slice.call(value);
+    },
+
+    castArray: function castArray(value) {
+        if (value === undefined) {
+            return [];
+        }
+
+        if (isArray(value)) {
+            return value;
+        }
+
+        return [value];
     },
 
     toNumber: toNumber,
@@ -535,6 +557,14 @@ var filters = {
     reverse: function reverse(value) {
         if (isArray(value) || isString(value)) {
             return value.reverse();
+        }
+
+        return value;
+    },
+
+    slice: function slice(value, options) {
+        if (isArray(value) || isString(value)) {
+            return value.slice(options.begin, options.end);
         }
 
         return value;

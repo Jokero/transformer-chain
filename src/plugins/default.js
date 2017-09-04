@@ -8,7 +8,7 @@
  *
  * @returns {Object}
  */
-const handle = function handle(object, schema, fullObject, path) {
+function handleObject(object, schema, fullObject, path) {
     const resultObject = {};
 
     Object.keys(schema).forEach(propertyName => {
@@ -31,11 +31,13 @@ const handle = function handle(object, schema, fullObject, path) {
                 newPropertyValue = propertySchema.$default;
             }
 
-            if ((propertySchema.$items || propertySchema[0]) && newPropertyValue instanceof Array) {
-                const objectSchema = propertySchema.$items || propertySchema[0];
-                newPropertyValue = newPropertyValue.map((object, i) => handle(object, objectSchema, fullObject, propertyPath.concat(i)));
+            const itemsSchema = propertySchema.$items || propertySchema[0];
+            if (itemsSchema && Object.keys(itemsSchema).some(p => !p.startsWith('$')) && newPropertyValue instanceof Array) {
+                const arraySchema = Array(newPropertyValue.length).fill(itemsSchema);
+                const handledArrayLikeObject = handleObject(newPropertyValue, arraySchema, fullObject, propertyPath);
+                newPropertyValue = Object.keys(handledArrayLikeObject).map(key => handledArrayLikeObject[key]);
             } else if (Object.keys(propertySchema).some(p => !p.startsWith('$')) && newPropertyValue instanceof Object) {
-                newPropertyValue = handle(newPropertyValue, propertySchema, fullObject, propertyPath);
+                newPropertyValue = handleObject(newPropertyValue, propertySchema, fullObject, propertyPath);
             }
         }
 
@@ -43,7 +45,7 @@ const handle = function handle(object, schema, fullObject, path) {
     });
 
     return resultObject;
-};
+}
 
 /**
  * @param {Object} object
@@ -52,5 +54,5 @@ const handle = function handle(object, schema, fullObject, path) {
  * @returns {Object}
  */
 module.exports = function(object, schema) {
-    return handle(object, schema, object, []);
+    return handleObject(object, schema, object, []);
 };

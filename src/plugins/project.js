@@ -8,7 +8,7 @@
  *
  * @returns {Object}
  */
-const handle = function handle(object, schema, fullObject, path) {
+function handleObject(object, schema, fullObject, path) {
     const resultObject = {};
 
     Object.keys(schema).forEach(propertyName => {
@@ -31,11 +31,13 @@ const handle = function handle(object, schema, fullObject, path) {
         } else if (propertySchema instanceof Object) {
             newPropertyValue = propertyValue;
 
-            if ((propertySchema.$items || propertySchema[0]) && propertyValue instanceof Array) {
-                const objectSchema = propertySchema.$items || propertySchema[0];
-                newPropertyValue = propertyValue.map((object, i) => handle(object, objectSchema, fullObject, propertyPath.concat(i)));
+            const itemsSchema = propertySchema.$items || propertySchema[0];
+            if (itemsSchema && Object.keys(itemsSchema).some(p => !p.startsWith('$')) && propertyValue instanceof Array) {
+                const arraySchema = Array(newPropertyValue.length).fill(itemsSchema);
+                const handledArrayLikeObject = handleObject(newPropertyValue, arraySchema, fullObject, propertyPath);
+                newPropertyValue = Object.keys(handledArrayLikeObject).map(key => handledArrayLikeObject[key]);
             } else if (Object.keys(propertySchema).some(p => !p.startsWith('$')) && propertyValue instanceof Object) {
-                newPropertyValue = handle(propertyValue, propertySchema, fullObject, propertyPath);
+                newPropertyValue = handleObject(propertyValue, propertySchema, fullObject, propertyPath);
             }
         }
 
@@ -45,7 +47,7 @@ const handle = function handle(object, schema, fullObject, path) {
     });
 
     return resultObject;
-};
+}
 
 /**
  * @param {Object} object
@@ -54,5 +56,5 @@ const handle = function handle(object, schema, fullObject, path) {
  * @returns {Object}
  */
 module.exports = function(object, schema) {
-    return handle(object, schema, object, []);
+    return handleObject(object, schema, object, []);
 };
